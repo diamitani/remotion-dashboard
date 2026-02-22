@@ -1,34 +1,23 @@
-# Dependencies
 node_modules/
-/.pnp
-.pnp.js
+dist/
 
-# Next.js
-/.next/
-/out/
-
-# Production build
-/build
-
-# Environment files
+# Local env
 .env
 .env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env.*.local
 
-# Logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+# Python / local tooling
+venv/
+.venv/
+chatterbox-venv/
+chatterbox-venv311/
+__pycache__/
 
-# Runtime data
-storage/users/
+# Build and cache artifacts
+*.tsbuildinfo
+install-results.txt
+vite.config.js
+vite.config.d.ts
 
-# OS
+# OS files
 .DS_Store
-Thumbs.db
-
-# Editor
-.vscode/
-.idea/
