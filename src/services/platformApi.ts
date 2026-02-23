@@ -1,4 +1,14 @@
-import type { ChatRequest, ChatResponse, CreateProjectInput, LoginInput, Project, User } from '../types/platform';
+import type {
+  BillingProfile,
+  ChatRequest,
+  ChatResponse,
+  ConnectByokInput,
+  CreateProjectInput,
+  LoginInput,
+  Project,
+  UpdateBillingInput,
+  User,
+} from '../types/platform';
 import { createMockPlatformApi } from './platformApiMock';
 
 export type PlatformApi = {
@@ -7,6 +17,10 @@ export type PlatformApi = {
   createProject: (input: CreateProjectInput) => Promise<Project>;
   sendPrompt: (request: ChatRequest) => Promise<ChatResponse>;
   updateTokenMode: (projectId: string, mode: Project['tokenMode']) => Promise<Project>;
+  getBillingProfile: (workspaceId: string) => Promise<BillingProfile>;
+  updateBillingProfile: (input: UpdateBillingInput) => Promise<BillingProfile>;
+  connectByok: (input: ConnectByokInput) => Promise<BillingProfile>;
+  disconnectByok: (workspaceId: string) => Promise<BillingProfile>;
 };
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL?.trim();
@@ -32,6 +46,10 @@ const createRemotePlatformApi = (baseUrl: string): PlatformApi => {
     createProject: (input) => call<Project>('/projects', 'POST', input),
     sendPrompt: (request) => call<ChatResponse>('/chat', 'POST', request),
     updateTokenMode: (projectId, mode) => call<Project>(`/projects/${projectId}/token-mode`, 'PATCH', { mode }),
+    getBillingProfile: (workspaceId) => call<BillingProfile>(`/workspaces/${workspaceId}/billing`, 'GET'),
+    updateBillingProfile: (input) => call<BillingProfile>(`/workspaces/${input.workspaceId}/billing`, 'PATCH', input),
+    connectByok: (input) => call<BillingProfile>(`/workspaces/${input.workspaceId}/byok`, 'POST', input),
+    disconnectByok: (workspaceId) => call<BillingProfile>(`/workspaces/${workspaceId}/byok`, 'DELETE'),
   };
 };
 

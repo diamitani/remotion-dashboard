@@ -9,6 +9,9 @@ The app now includes:
 - Landing page (`/`)
 - Login page (`/login`)
 - Project workspace with working chat and preview (`/app`)
+- Workspace billing console with subscription plan/status controls
+- BYOK connect/disconnect flow (OpenAI/Anthropic/other provider token modes)
+- Auto top-up credit purchase simulation when subscription is active + payment method is attached
 - Pluggable platform API layer (mock backend by default; real API when `VITE_API_BASE_URL` is set)
 
 ## Run

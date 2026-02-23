@@ -1,6 +1,9 @@
 export type MessageRole = 'user' | 'assistant' | 'system';
 
 export type TokenMode = 'platform-managed' | 'bring-your-own-key';
+export type BillingPlan = 'starter' | 'pro' | 'studio';
+export type SubscriptionStatus = 'active' | 'paused' | 'canceled';
+export type ByokProvider = 'openai' | 'anthropic' | 'other';
 
 export type User = {
   id: string;
@@ -48,4 +51,37 @@ export type ChatRequest = {
 export type ChatResponse = {
   project: Project;
   assistantMessage: ChatMessage;
+  billing: BillingProfile;
+  promptCreditCost: number;
+};
+
+export type BillingProfile = {
+  workspaceId: string;
+  plan: BillingPlan;
+  subscriptionStatus: SubscriptionStatus;
+  paymentMethodAttached: boolean;
+  creditBalance: number;
+  autoTopUpEnabled: boolean;
+  autoTopUpThreshold: number;
+  autoTopUpAmount: number;
+  byokConnected: boolean;
+  byokProvider: ByokProvider | null;
+  byokMaskedKey: string | null;
+  lastAutoTopUpAt: string | null;
+};
+
+export type UpdateBillingInput = {
+  workspaceId: string;
+  plan?: BillingPlan;
+  subscriptionStatus?: SubscriptionStatus;
+  paymentMethodAttached?: boolean;
+  autoTopUpEnabled?: boolean;
+  autoTopUpThreshold?: number;
+  autoTopUpAmount?: number;
+};
+
+export type ConnectByokInput = {
+  workspaceId: string;
+  provider: ByokProvider;
+  apiKey: string;
 };
