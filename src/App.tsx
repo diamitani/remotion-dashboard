@@ -1,62 +1,73 @@
 import { useMemo, useState } from 'react';
-import { ChatPanel } from './components/ChatPanel';
-import { PreviewPanel } from './components/PreviewPanel';
-import type { ChatMessage } from './components/types';
+import { BrowserRouter, Navigate, Route, Routes, useNavigate } from 'react-router-dom';
+import { LoginPage } from './pages/LoginPage';
+import { LandingPage } from './pages/LandingPage';
+import { WorkspacePage } from './pages/WorkspacePage';
+import { createPlatformApi } from './services/platformApi';
+import type { LoginInput, User } from './types/platform';
+import { clearSessionUser, loadSessionUser, saveSessionUser } from './utils/session';
 
-const baseMessages: ChatMessage[] = [
-  {
-    id: 'm1',
-    role: 'system',
-    text: 'Connected to OpenCode worker. Remotion project bootstrap and style libraries are loaded.',
-    timestamp: '09:14',
-  },
-  {
-    id: 'm2',
-    role: 'assistant',
-    text: 'Ready. I can update compositions, run render previews, and sync brand tokens.',
-    timestamp: '09:14',
-  },
-];
+const AppRoutes: React.FC = () => {
+  const navigate = useNavigate();
+  const api = useMemo(() => createPlatformApi(), []);
+  const [user, setUser] = useState<User | null>(() => loadSessionUser());
+  const [authLoading, setAuthLoading] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
 
-export const App: React.FC = () => {
-  const [messages, setMessages] = useState<ChatMessage[]>(baseMessages);
-  const [running, setRunning] = useState(false);
-  const [promptText, setPromptText] = useState('Design-system-first motion dashboard');
-
-  const previewUrl = useMemo(() => 'https://your-remotion-dashboard.example.com/preview/session-123', []);
-
-  const pushMessage = (role: ChatMessage['role'], text: string) => {
-    const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    setMessages((prev) => [
-      ...prev,
-      {
-        id: `${role}-${Date.now()}-${Math.random().toString(16).slice(2)}`,
-        role,
-        text,
-        timestamp,
-      },
-    ]);
+  const handleLogin = async (credentials: LoginInput) => {
+    setAuthLoading(true);
+    setAuthError(null);
+    try {
+      const loggedInUser = await api.login(credentials);
+      setUser(loggedInUser);
+      saveSessionUser(loggedInUser);
+      navigate('/app');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Login failed';
+      setAuthError(message);
+    } finally {
+      setAuthLoading(false);
+    }
   };
 
-  const handleSend = (text: string) => {
-    pushMessage('user', text);
-    setRunning(true);
-
-    window.setTimeout(() => {
-      setPromptText(text);
-      pushMessage('assistant', 'Patch generated and preview re-rendered. Style tokens + animation timing updated.');
-      setRunning(false);
-    }, 1400);
+  const handleSignOut = () => {
+    setUser(null);
+    clearSessionUser();
+    navigate('/login');
   };
 
   return (
-    <main className="layout">
-      <aside>
-        <ChatPanel messages={messages} onSend={handleSend} running={running} />
-      </aside>
-      <section>
-        <PreviewPanel previewUrl={previewUrl} promptText={promptText} />
-      </section>
-    </main>
+    <Routes>
+      <Route path="/" element={<LandingPage isAuthenticated={Boolean(user)} />} />
+      <Route
+        path="/login"
+        element={
+          user ? (
+            <Navigate to="/app" replace />
+          ) : (
+            <LoginPage onLogin={handleLogin} loading={authLoading} error={authError} />
+          )
+        }
+      />
+      <Route
+        path="/app"
+        element={
+          user ? (
+            <WorkspacePage user={user} api={api} onSignOut={handleSignOut} />
+          ) : (
+            <Navigate to="/login" replace />
+          )
+        }
+      />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
+};
+
+export const App: React.FC = () => {
+  return (
+    <BrowserRouter>
+      <AppRoutes />
+    </BrowserRouter>
   );
 };

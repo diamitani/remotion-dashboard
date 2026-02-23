@@ -2,6 +2,15 @@
 
 Prompt-native dashboard for editing Remotion compositions with a chat workflow and live preview panel.
 
+## SaaS scaffold
+
+The app now includes:
+
+- Landing page (`/`)
+- Login page (`/login`)
+- Project workspace with working chat and preview (`/app`)
+- Pluggable platform API layer (mock backend by default; real API when `VITE_API_BASE_URL` is set)
+
 ## Run
 
 ```bash
@@ -23,3 +32,4 @@ npm run build
 - `LLM_BUILD_PROMPT.md`
 - `ARTICLE_LIBRARY_INSTALLS.md`
 - `CHATTERBOX_TTS_SETUP.md`
+- `SAAS_PLATFORM_MODEL.md`
